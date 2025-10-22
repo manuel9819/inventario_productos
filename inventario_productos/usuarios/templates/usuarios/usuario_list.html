@@ -1,0 +1,299 @@
+{% extends 'productos/base.html' %}
+
+{% block title %}Lista de Usuarios - Inventario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">
+        <i class="fas fa-users text-primary"></i>
+        Lista de Usuarios
+    </h1>
+    <div>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUsuarioModal">
+            <i class="fas fa-plus"></i> Agregar Usuario
+        </button>
+        <a href="/api/usuarios/" class="btn btn-outline-info">
+            <i class="fas fa-code"></i> Ver API
+        </a>
+    </div>
+</div>
+
+{% if usuarios %}
+    <div class="row">
+        {% for usuario in usuarios %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card user-card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <i class="fas fa-user text-primary"></i>
+                        {{ usuario.nombre }}
+                    </h5>
+                    <p class="card-text text-muted">{{ usuario.email }}</p>
+                    {% if usuario.telefono %}
+                        <p class="card-text text-muted"><i class="fas fa-phone"></i> {{ usuario.telefono }}</p>
+                    {% endif %}
+                    {% if usuario.descripcion %}
+                        <p class="card-text text-muted">{{ usuario.descripcion }}</p>
+                    {% else %}
+                        <p class="card-text text-muted fst-italic">Sin descripción</p>
+                    {% endif %}
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editUsuarioModal"
+                                        data-id="{{ usuario.id }}"
+                                        data-nombre="{{ usuario.nombre }}"
+                                        data-email="{{ usuario.email }}"
+                                        data-telefono="{{ usuario.telefono }}"
+                                        data-descripcion="{{ usuario.descripcion }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a href="{% url 'usuario-delete-html' usuario.id %}"
+                                   class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt"></i>
+                            Registrado: {{ usuario.fecha_registro|date:"d/m/Y H:i" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-5x text-muted mb-3"></i>
+        <h3 class="text-muted">No hay usuarios registrados</h3>
+        <p class="text-muted">Comienza agregando tu primer usuario</p>
+        <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addUsuarioModal">
+            <i class="fas fa-plus"></i> Agregar Primer Usuario
+        </button>
+    </div>
+{% endif %}
+
+<!-- Modal para Agregar Usuario -->
+<div class="modal fade" id="addUsuarioModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus text-success"></i> Agregar Nuevo Usuario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addUsuarioForm">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del Usuario *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono">
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Agregar Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Usuario -->
+<div class="modal fade" id="editUsuarioModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit text-primary"></i> Editar Usuario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editUsuarioForm">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit-id" name="id">
+                    <div class="mb-3">
+                        <label for="edit-nombre" class="form-label">Nombre del Usuario *</label>
+                        <input type="text" class="form-control" id="edit-nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="edit-email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-telefono" class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" id="edit-telefono" name="telefono">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="edit-descripcion" name="descripcion" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Actualizar Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar modal de edición
+    const editModal = document.getElementById('editUsuarioModal');
+    editModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const usuarioId = button.getAttribute('data-id');
+        const usuarioName = button.getAttribute('data-nombre');
+        const usuarioEmail = button.getAttribute('data-email');
+        const usuarioTelefono = button.getAttribute('data-telefono');
+        const usuarioDescripcion = button.getAttribute('data-descripcion');
+
+        console.log('Editar usuario:', {
+        id: usuarioId,
+        nombre: usuarioName,
+        email: usuarioEmail,
+        telefono: usuarioTelefono,
+        descripcion: usuarioDescripcion
+    });
+
+        document.getElementById('edit-id').value = usuarioId;
+        document.getElementById('edit-nombre').value = usuarioName;
+        document.getElementById('edit-email').value = usuarioEmail;
+        document.getElementById('edit-telefono').value = usuarioTelefono || '';
+        document.getElementById('edit-descripcion').value = usuarioDescripcion || '';
+    });
+
+    // Manejar envío del formulario de agregar usuario
+    document.getElementById('addUsuarioForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+
+        // Mostrar estado de carga
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Agregando...';
+
+        fetch('/ajax/usuarios/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.id) {
+                // Mostrar mensaje de éxito
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show';
+                alert.innerHTML = `
+                    <i class="fas fa-check-circle"></i> Usuario "${data.nombre}" agregado exitosamente.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
+
+                // Cerrar modal y recargar
+                bootstrap.Modal.getInstance(document.getElementById('addUsuarioModal')).hide();
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                throw new Error('Error en la respuesta del servidor');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al agregar el usuario. Por favor, verifica los datos e inténtalo de nuevo.');
+        })
+        .finally(() => {
+            // Restaurar botón
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Agregar Usuario';
+        });
+    });
+
+    // Manejar envío del formulario de editar usuario
+    document.getElementById('editUsuarioForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const usuarioId = document.getElementById('edit-id').value;
+        const submitBtn = this.querySelector('button[type="submit"]');
+
+        // Mostrar estado de carga
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+
+        // Convertir FormData a JSON para PUT request
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+
+        fetch(`/ajax/usuarios/${usuarioId}/`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.id) {
+                // Mostrar mensaje de éxito
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show';
+                alert.innerHTML = `
+                    <i class="fas fa-check-circle"></i> Usuario "${data.nombre}" actualizado exitosamente.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
+
+                // Cerrar modal y recargar
+                bootstrap.Modal.getInstance(document.getElementById('editUsuarioModal')).hide();
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                throw new Error('Error en la respuesta del servidor');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al actualizar el usuario. Por favor, verifica los datos e inténtalo de nuevo.');
+        })
+        .finally(() => {
+            // Restaurar botón
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Actualizar Usuario';
+        });
+    });
+
+
+});
+</script>
+{% endblock %}

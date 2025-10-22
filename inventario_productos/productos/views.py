@@ -38,11 +38,18 @@ class ProductoDeleteView(DeleteView):
     template_name = 'productos/producto_confirm_delete.html'
     success_url = reverse_lazy('producto-list')
     context_object_name = 'producto'
+    print("++++++++++++++++++++++++++")
+    print(f"DELETE request received - Eliminando producto")
 
-    def delete (self, request, *args, **kwargs):
+    def form_valid(self, form):
+        """"metodo moderno para la logica personalizada"""
         Producto = self.get_object()
+        print("++++++++++++++++++++++++++")
+        print(f"DELETE request received - Eliminando producto: {Producto.nombre} (ID: {Producto.id})")
         messages.success(self.request, f'El producto "{Producto.nombre}" ha sido eliminado.')
-        return super().delete(request, *args, **kwargs)
+        return super().form_valid(form)
+    
+    
     
 #vista para manejar
 @method_decorator(csrf_exempt, name='dispatch')
@@ -52,6 +59,9 @@ class ProductoAjaxView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         """crear nuevo producto"""
+        print("++++++++++++++++++++++++++")
+        print("POST request data:")
+        print(request.body)
         try:
             data ={ 
                 'nombre': request.POST.get('nombre',),
