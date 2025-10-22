@@ -56,38 +56,44 @@ class ProductoAjaxView(generics.GenericAPIView):
             data ={ 
                 'nombre': request.POST.get('nombre',),
                 'descripcion': request.POST.get('descripcion',),
-                'precio': request.POST.get('precio',)
+                'precio': request.POST.get('precio',),
+                'cantidad': request.POST.get('cantidad',)
             }
 
             producto = Producto.objects.create(**data)
+            print("Created product:", producto.id, producto.nombre)
             return JsonResponse({
                 'id': producto.id,
                 'nombre': producto.nombre,
                 'descripcion': producto.descripcion,
                 'precio': str(producto.precio),
-                'creado': producto.cantidad.strftime('%d %H:%M:%S')   
+                'cantidad': producto.cantidad,
+                #'creado': producto.cantidad.strftime('%d %H:%M:%S')   
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
         
     def put(self, request, pk, *args, **kwargs):
         """"actualizar producto"""
+        print("PUT request data:", request.body)
         try:
             producto = get_object_or_404(Producto, pk=pk)
 
             # parsing JSON data from request body
             data = json.loads(request.body)
-
+            print("Parsed data:", data)
             producto.nombre = data.get('nombre', producto.nombre)
             producto.descripcion = data.get('descripcion', producto.descripcion)
             producto.precio = data.get('precio', producto.precio)
+            producto.cantidad = data.get('cantidad', producto.cantidad)
             producto.save()
             return JsonResponse({
                 'id': producto.id,
                 'nombre': producto.nombre,
                 'descripcion': producto.descripcion,
                 'precio': str(producto.precio),
-                'creado': producto.cantidad.strftime('%d %H:%M:%S')   
+                'cantidad': producto.cantidad,
+                #'creado': producto.cantidad.strftime('%d %H:%M:%S')   
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)

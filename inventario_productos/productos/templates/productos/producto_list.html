@@ -43,7 +43,8 @@
                                         data-id="{{ producto.id }}"
                                         data-nombre="{{ producto.nombre }}"
                                         data-descripcion="{{ producto.descripcion }}"
-                                        data-precio="{{ producto.precio }}">
+                                        data-precio="{{ producto.precio }}"
+                                        data-cantidad="{{ producto.cantidad }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <a href="{% url 'producto-delete-html' producto.id %}" 
@@ -101,6 +102,10 @@
                             <input type="number" class="form-control" id="precio" name="precio" step="0.01" min="0" required>
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <label for="cantidad" class="form-label">Cantidad *</label>
+                        <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" step="1" required>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -142,6 +147,10 @@
                             <input type="number" class="form-control" id="edit-precio" name="precio" step="0.01" min="0" required>
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <label for="edit-cantidad" class="form-label">Cantidad *</label>
+                        <input type="number" class="form-control" id="edit-cantidad" name="cantidad" min="1" step="1" required>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -168,11 +177,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const productName = button.getAttribute('data-nombre');
         const productDesc = button.getAttribute('data-descripcion');
         const productPrice = button.getAttribute('data-precio');
+        const productCantidad = button.getAttribute('data-cantidad');
+
+        console.log('Editar producto:', {
+        id: productId,
+        nombre: productName,
+        descripcion: productDesc,
+        precio: productPrice,
+        cantidad: productCantidad
+    });
         
         document.getElementById('edit-id').value = productId;
         document.getElementById('edit-nombre').value = productName;
         document.getElementById('edit-descripcion').value = productDesc || '';
         document.getElementById('edit-precio').value = productPrice;
+        document.getElementById('edit-cantidad').value = productCantidad;
     });
 
     // Manejar envío del formulario de agregar producto
